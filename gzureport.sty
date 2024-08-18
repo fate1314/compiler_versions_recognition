@@ -1,0 +1,159 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%GUZ课程论文模板
+%%作者：None
+%%License：Creative Commons CC BY 4.0
+
+
+%%最后更改于2024/06/15
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%在浙江大学报告的模板上修改而来
+%%原作者:Percy
+%%Github: https://github.com/haochengxia/zjureport
+%%Overleaf: https://www.overleaf.com/latex/templates/ZJUke-cheng-lun-wen-mo-ban/bcwvxncqffkw
+\ProvidesPackage{gzureport}
+
+%%页边距
+\RequirePackage[left=2.50cm, right=2.50cm, top=2.50cm, bottom=2.50cm]{geometry}
+
+%%一些必要的宏包
+\RequirePackage[unicode=true,colorlinks,urlcolor=blue,linkcolor=blue,bookmarksnumbered=blue]{hyperref}
+\RequirePackage{latexsym,amssymb,amsmath,amsbsy,amsopn,amstext,amsthm,amsxtra,color,bm,calc,ifpdf}
+\RequirePackage{graphicx}
+\RequirePackage{enumerate}
+\RequirePackage{fancyhdr}
+\RequirePackage{listings}
+
+\lstset{
+    language=Python, % 设置语言
+    basicstyle=\ttfamily\small, % 基本样式
+    keywordstyle=\color{blue}, % 关键字样式
+    commentstyle=\color{gray}, % 注释样式
+    stringstyle=\color{red}, % 字符串样式
+    numbers=none, % 行号位置
+    numberstyle=\tiny\color{gray}, % 行号样式
+    stepnumber=1, % 行号步长
+    numbersep=5pt, % 行号与代码的距离
+    frame=single, % 代码框架
+    breaklines=true, % 自动换行
+    captionpos=b, % 标题位置
+    tabsize=4, % 制表符宽度
+    showspaces=false, % 显示空格
+    showstringspaces=false, % 显示字符串中的空格
+    xleftmargin=1em, % 左边距
+    xrightmargin=1em % 右边距
+}
+
+\RequirePackage{multirow}
+\RequirePackage{makeidx}
+\RequirePackage{xcolor}
+\RequirePackage{fontspec}
+\RequirePackage{subfigure}
+\PassOptionsToPackage{hyphens}{url}
+\RequirePackage{hyperref}
+\RequirePackage{pythonhighlight}
+\RequirePackage{subfigure}
+\RequirePackage{float}
+\RequirePackage{tcolorbox}
+
+\RequirePackage{fontawesome}
+
+%% 更改摘要二字的样式
+\renewcommand{\abstractname}{\textbf{\large {摘\quad 要}}}
+
+%可固定下划线长度
+\makeatletter
+\newcommand\dlmu[2][4cm]{\hskip1pt\underline{\hb@xt@ #1{\hss#2\hss}}\hskip3pt}
+\makeatother
+
+%更改主题
+% \hypersetup{
+%     colorlinks=true,
+%     linkcolor=blue,
+%     filecolor=blue,
+%     urlcolor=Magenta,
+%     citecolor=orange,
+% }
+
+%%对一些autoref的中文引用名作修改
+\def\equationautorefname{公式}
+\def\footnoteautorefname{脚注}
+\def\itemautorefname{项}
+\def\figureautorefname{图}
+\def\tableautorefname{表}
+\def\partautorefname{篇}
+\def\appendixautorefname{附录}
+\def\chapterautorefname{章}
+\def\sectionautorefname{节}
+\def\subsectionautorefname{小节}
+\def\subsubsectionautorefname{subsubsection}
+\def\paragraphautorefname{段落}
+\def\subparagraphautorefname{子段落}
+\def\FancyVerbLineautorefname{行}
+\def\theoremautorefname{定理}
+\newtheorem{Theorem}{定理}[section]
+\newtheorem{Lemma}[Theorem]{引理}
+\newtheorem{Corollary}[Theorem]{推论}
+\newtheorem{Proposition}[Theorem]{命题}
+\newtheorem{Definition}[Theorem]{定义}
+\newtheorem{Example}[Theorem]{例}
+
+%%参考文献设置
+\newcommand{\reference}{
+    \nocite{*}   %打开此选项会列出bib里面的所有参考文献
+    \bibliographystyle{unsrt} %规定了参考文献的格式
+    \begin{center}%居中
+        \bibliography{reference} %调出LaTeX生成参考文献列表
+    \end{center}
+}
+
+%%文本框设置
+\newcommand{\tbox}[1]{
+    \begin{center}
+        \begin{tcolorbox}[colback=gray!10,%gray background
+                colframe=black,% black frame colour
+                width=16cm,% Use 16cm total width,
+                arc=1mm, auto outer arc,
+                boxrule=0.5pt,
+            ]
+            {#1}
+        \end{tcolorbox}
+    \end{center}
+}
+
+%%页眉设置
+\pagestyle{fancy}
+\fancyhead[L]{\fangsong 页眉左}%%留空则不显示
+\fancyhead[C]{\fangsong 页眉中}%%留空则不显示
+\fancyhead[R]{\fangsong 页眉右}%%留空则不显示
+
+%封面页设置
+{
+    \title{ \vspace{2cm} \heiti \Huge \textbf{{主标题}} \par
+        \vspace{1cm}
+        \heiti \Large {\underline{副标题}}
+        \vspace{3cm} }%标题
+    \author{
+        \vspace{0.5cm}
+        \kaishu\Large 姓名\ \dlmu[9cm]{} \qquad \\ %姓名
+        \vspace{0.5cm}
+        \kaishu\Large  学号\ \dlmu[9cm]{} \qquad  \\ %学号
+        \vspace{0.5cm}
+        \kaishu\Large  教师\ \dlmu[9cm]{} \qquad  \\ %教师
+        \vspace{0.5cm}
+        \kaishu\Large   院所\ \dlmu[9cm]{} %院所
+    }
+
+    \date{\today} % 默认为今天的日期，可以注释掉不显示日期
+}
+
+%%在这里可更改封面logo
+\newcommand{\cover}{
+    %%封面校名logo，图片都在figures文件夹里
+    \begin{figure}[t!]
+        \centering
+        \includegraphics[width=1\linewidth]{figures/gzu.png}
+    \end{figure}
+    \maketitle
+}
+
