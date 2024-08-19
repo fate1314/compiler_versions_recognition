@@ -20,25 +20,25 @@
 并且，在我们的实验中，我们发现如果只使用附件1或者是附件2来构建模型，模型的预测结果将会趋向于随机猜测，而非根据编译器的特征进行预测。
 \par
 从数据的分布来看，我们使用t-SNE算法对数据进行降维可视化,t-分布邻域嵌入（t-distributed Stochastic Neighbor Embedding，t-SNE）\cite{JMLR:v9:vandermaaten08a}是一种非线性降维技术，特别适用于高维数据的可视化。t-SNE通过将高维数据映射到低维空间，同时\textbf{尽可能保持数据点之间的局部结构}，从而揭示数据的内在结构和模式。t-ESN算法通过优化KL散读来最小化高维空间和低维空间之间的分布差异，从而实现降维。t-SNE的优化目标是最小化高维空间和低维空间之间的KL散度，KL散度定义如下:
-\[
+\begin{equation}
 	C=KL(P||Q)=\sum_i\sum_jp_{ij}\log\frac{p_{ij}}{q_{ij}},
-\]
+\end{equation}
 其中,$p_{ij}$是高维数据点$x_i$和$x_j$之间的相似度，在高纬空间中，t-SNE算法使用高斯分布来衡量高维空间中点对之间的相似性。$q_{ij}$是低维数据点$y_i$和$y_j$之间的相似度。在低维空间中，t-SNE使用学生t分布（t-distribution）来计算点对之间的相似性。这个分布的长尾特性使得它能够更好地捕捉低维空间中的局部结构。t-SNE通过梯度下降算法优化该目标，C对于低维数据的梯度为
-\[
+\begin{equation}
 	\frac{\delta C}{\delta y_i}=4\sum_j(p_{ij}-q_{ij})(y_i-y_j)\left(1+\|y_i-y_j\|^2\right)^{-1},
-\]
+\end{equation}
 最后使用梯度更新低维数据点$y_i$
-\[
+\begin{equation}
 	y_i^{(t+1)}=y_i^{(t)}+\eta\frac{\delta C}{\delta y_i},
-\]
+\end{equation}
 其中$\eta$是学习率。在t-SNE算法中，还引入了\textbf{动量}来进一步优化低位数据点的表示:
-\[
+\begin{equation}
 	momentum=\alpha(y_i^{(t)}-y_i^{(t-1)}).
-\]
+\end{equation}
 动量项通过在更新过程中加入前几次更新的累积效果，可以帮助算法在梯度方向上更快地移动，并且通过平滑更新路径，能够有效减少震荡，使得优化过程更加稳定。加入动量后的更新公式为
-\[
+\begin{equation}
 	y_i^{(t+1)}=y_i^{(t)}+\eta\frac{\delta C}{\delta y_i}+\alpha(y_i^{(t)}-y_i^{(t-1)})m
-\]
+\end{equation}
 综上所述，T-SNE算法流程如\autoref{alg:tsne}所示。
 \begin{algorithm}[H]
 	\caption{t-SNE}
@@ -108,23 +108,23 @@
 通过这些优势，XGBoost成为我们在处理复杂数据集和追求高效、准确预测时的理想选择。
 XGBoost的原理如下:
 假设已经训练了$t-1$个模型，现在准备增加一个模型$f_t(x)$，使得目标函数:
-\[
+\begin{equation}
 	\mathcal{L}(F_{t-1}+\alpha f_t)=\sum_{i=1}^{n}l(y_i,\hat{y}^{(t)})+\Omega(f_t),
-\]
+\end{equation}
 最小化，其中$\hat{y}^{(t)}=F_{t-1}(x)+f_t(x)$，$\Omega(f_t)$是正则化项，$l(y_i,\hat{y}^{(t)})$是损失函数，$n$ 是样本数量。我们对损失函数$l(y_i,\hat{y}^{(t)})$在$F_{t-1}(x)+f_t(x)$处进行二阶泰勒展开，并且忽略余项，那么我们可以得到
-\[
+\begin{equation}
 	l(y_i,\hat{y}^{(t)})\approx\sum_{i=1}^{n}\left[l\left(y_{i},\hat{y}_{i}^{(t-1)}\right)+g_{i}f_{t}(x_{i})+\frac{1}{2}h_{i}f_{t}^{2}(x_{i})\right],
-\]
+\end{equation}
 其中$g_i=\nabla_{\hat{y}^{(t-1)}}l\left(y_i,\hat{y}_i^{(t-1)}\right)\quad h_i=\nabla_{\hat{y}^{(t-1)}}^2l\left(y_i,\hat{y}_i^{(t-1)}\right)$，对于每个叶子结点的预测
-\[
+\begin{equation}
 	f_t(x)=w_{q(x)},w\in\mathbb{R}^T,q\colon\mathbb{R}^d\mapsto\{1,2,...,T\},,,,,
-\]
+\end{equation}
 其中$T$是叶子结点的个数，$q(x)$是样本$x$在树中的叶子结点的索引(因为每个样本最终都会落到某个叶子节点上)，$w$是叶子结点的权重，那么我们就可以定义正则化函数:
-\[
+\begin{equation}
 	\Omega(f_t)=\gamma T+\frac{1}{2}\lambda\sum_{i=1}^{T}w_i^2,
-\]
+\end{equation}
 $\gamma$和$\lambda$是超参数，分别控制叶子结点的个数和叶子结点的惩罚权重，最终的优化目标为
-\[
+\begin{equation}
 	\begin{aligned}
 		\mathcal{L}^{(t)} & \simeq\sum_{i=1}^{n}\left[l\left(y_{i},\hat{y}_{i}^{(t-1)}\right)+g_{i}f_{t}(x_{i})+\frac{1}{2}h_{i}f_{t}^{2}(x_{i})\right]+\Omega(f_{t})
 		\\
@@ -132,24 +132,34 @@ $\gamma$和$\lambda$是超参数，分别控制叶子结点的个数和叶子结
 		\\
 		                  & =\sum_{j=1}^{T}\left[(\sum_{i\in I_{i}}g_{i})w_{j}+\frac{1}{2}(\sum_{i\in I_{i}}h_{i}+\lambda)w_{j}^{2}\right]+\gamma T+const
 	\end{aligned}
-\]
+\end{equation}
 其中$I_j$是样本集合$\{i|q(x_i)=j\}$，也就是由于每个样本最终都会落到某个叶子结点上，因此把对样本的求和转换为对叶子结点的求和，并且$l(y_i,y^{(t-1)})$是已经确定的常数，因此最终优化目标是
-\[
+\begin{equation}
 	\mathcal{L}^{(t)}=\sum_{j=1}^{T}\left[(\sum_{i\in I_{i}}g_{i})w_{j}+\frac{1}{2}(\sum_{i\in I_{i}}h_{i}+\lambda)w_{j}^{2}\right]+\gamma T
-\]
+\end{equation}
 这是一个关于$w_i$的二次函数，可以通过求导得到最优解，令
-\[
+\begin{equation}
 	G_j=\sum_{i \in I_j}g_i\quad H_j=\sum_{i \in I_j}h_i,
-\]
+\end{equation}
 则优化目标的闭式解为
-\[
+\begin{equation}
 	w_{j}^{*}=-\frac{G_{j}}{H_{j}+\lambda}\quad \mathcal{L}^{(t)}=-\frac{1}{2}\sum_{i=1}^{T}\:\frac{G_{j}^{2}}{H_{j}+\lambda}+\gamma T,
-\]
+\end{equation}
 那么在构建决策树时，我们可以通过贪心算法，从根节点开始，对每个叶子结点，计算其最优的权重$w_j$，然后计算损失函数，
-\[
+\begin{equation}
 	\text{Gain}=\frac{1}{2}(\frac{G_{L}^{2}}{H_{L}+\lambda}+\frac{G_{R}^{2}}{H_{R}+\lambda}-\frac{(G_{L}+G_{R})^{2}}{H_{L}+H_{R}+\lambda})-\gamma,
-\]
-其中$G_L,H_L$和$G_R,H_R$分别是左右子树的梯度值，最后选择最优的划分特征和划分点，递归构建树，直到满足停止条件。最终，XGBoost的算法如\autoref{alg:xgboost}所示。
+\end{equation}
+其中$G_L,H_L$和$G_R,H_R$分别是左右子树的梯度值，最后选择最优的划分特征和划分点，递归构建树，直到满足停止条件。
+在本题中，由于是分类问题，我们使用交叉熵作为损失函数，
+\begin{equation}
+	l(y_i,\hat{y}_i^{(t-1)})=-\left(y_i\log(\hat{y}_i^{(t-1)})+(1-y_i)\log(1-\hat{y}_i^{(t-1)})\right)
+\end{equation}
+则该损失函数的梯度和二阶导数分别为
+\begin{equation}
+	g_i=\hat{y}_i^{(t-1)}-y_i ,\quad h_i=\hat{y}_i^{(t-1)}(1-\hat{y}_i^{(t-1)})，
+\end{equation}
+
+最终，XGBoost的算法如\autoref{alg:xgboost}所示。
 \begin{algorithm}[H]
 	\caption{XGBoost}
 	\label{alg:xgboost}
