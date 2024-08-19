@@ -77,6 +77,7 @@
 
 %%对一些autoref的中文引用名作修改
 \def\equationautorefname{公式}
+\def\algorithmname{算法}
 \def\footnoteautorefname{脚注}
 \def\itemautorefname{项}
 \def\figureautorefname{图}
@@ -112,7 +113,8 @@
     \begin{center}
         \begin{tcolorbox}[colback=gray!10,%gray background
                 colframe=black,% black frame colour
-                width=16cm,% Use 16cm total width,
+                width=16cm,
+                width=0.9\textwidth,
                 arc=1mm, auto outer arc,
                 boxrule=0.5pt,
             ]
@@ -123,9 +125,9 @@
 
 %%页眉设置
 \pagestyle{fancy}
-\fancyhead[L]{\fangsong 页眉左}%%留空则不显示
-\fancyhead[C]{\fangsong 页眉中}%%留空则不显示
-\fancyhead[R]{\fangsong 页眉右}%%留空则不显示
+\fancyhead[L]{\fangsong 2024深圳杯数学建模挑战赛}%%留空则不显示
+\fancyhead[C]{\fangsong }%%留空则不显示
+\fancyhead[R]{\fangsong C题:编译器版本识别}%%留空则不显示
 
 %封面页设置
 {

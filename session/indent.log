@@ -1,10 +1,10 @@
 INFO:  latexindent.exe version 3.23.6, 2024-01-17, a script to indent .tex files
        latexindent.exe lives here: D:/Program/Latex/texlive/2024/bin/windows/
-       Sun Aug 18 13:09:02 2024
-       Filename: e:\latex\compiler_versions_recognition\method.tex
+       Mon Aug 19 09:31:27 2024
+       Filename: e:\latex\compiler_versions_recognition\session\question3.tex
 INFO:  Processing switches:
 INFO:  Directory for backup files and indent.log:
-       e:\latex\compiler_versions_recognition
+       e:\latex\compiler_versions_recognition\session
 INFO:  YAML settings read: defaultSettings.yaml
        Reading defaultSettings.yaml from D:/Program/Latex/texlive/2024/bin/windows/defaultSettings.yaml
        Reading defaultSettings.yaml (2nd attempt) from D:/Program/Latex/texlive/2024/bin/windows/../../texmf-dist/scripts/latexindent/defaultSettings.yaml
