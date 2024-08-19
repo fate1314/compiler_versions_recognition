@@ -1,11 +1,11 @@
 \section{问题二模型的建立与求解}
   \subsection{数据分析}
-  我们画出部分特征数据的分布，得到结果如下图所示。从图中我们可以看出，不同版本GCC编译器生成的汇编文件对于操作码、寄存器、Bigram与block数量存在一定的差异，而这也正是我们去判断编译器版本的重要依据。
+  我们画出部分特征数据的分布，得到结果如\autoref{fig:hist}所示。从图中我们可以看出，不同版本GCC编译器生成的汇编文件对于操作码、寄存器、Bigram与block数量存在一定的差异，而这也正是我们去判断编译器版本的重要依据。
   \begin{figure}[H]
       \centering
-      \includegraphics[width=1\linewidth]{hist.png}
+      \includegraphics[width=1\linewidth]{figures/hist.png}
       \caption{Enter Caption}
-      \label{fig:enter-label}
+      \label{fig:hist}
   \end{figure}
 
   
@@ -43,11 +43,11 @@
 
   \begin{figure}[H]
       \centering
-      \includegraphics[width=1\linewidth]{corr.png}
-      \caption{特征与标签的相关系数}
-      \label{fig:enter-label}
+      \includegraphics[width=1\linewidth]{figures/corr.png}
+      \caption{特征与标签的皮尔逊相关系数}
+      \label{fig:corr}
   \end{figure}
-得到的结果如图所示，虽然图片中部分特征的相关系数较高，但是我们进行了统计显著性检验。我们设原假设$H_0$是“两个变量之间不存在线性关系”，备择假设$H_1$是“两个变量之间存在线性关系”.
+得到的结果如\autoref{fig:corr}所示，虽然图片中部分特征的相关系数较高，但是我们进行了统计显著性检验。我们设原假设$H_0$是“两个变量之间不存在线性关系”，备择假设$H_1$是“两个变量之间存在线性关系”.
 
 我们使用t 统计量来进行相关系数检验。t 统计量的计算公式为：
 \begin{equation}
@@ -65,24 +65,18 @@ t = \frac{r \sqrt{n - 2}}{\sqrt{1 - r^2}}
     \item \textbf{低 p 值（通常 < 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率非常低，因此我们有理由拒绝原假设，认为相关系数是显著的。
     \item \textbf{高 p 值（通常 ≥ 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率较高，因此我们无法拒绝原假设，认为相关系数可能不是显著的。
 \end{itemize}
-我们可以从图中看到几乎所有的特征属性的$p$值都大于显著性水平 
+我们可以从\autoref{fig:p}中看到几乎所有的特征属性的$p$值都大于显著性水平 
 α=0.05，则不拒绝原假设，认为相关系数可能是由于随机误差引起的，不具有统计显著性。
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{p.png}
+    \includegraphics[width=1\linewidth]{figures/p.png}
     \caption{统计显著性水平}
-    \label{fig:enter-label}
+    \label{fig:p}
 \end{figure}
  
   
-  因此我们接着计算了特征属性与标签的互信息。互信息衡量了两个随机变量之间的“信息共享”量。如果两个随机变量 $X$ 和 
-$Y$ 是独立的，那么它们之间的互信息为零，表示知道一个变量不会提供关于另一个变量的任何信息。如果互信息较大，则表示两个变量之间有较强的依赖关系。
- \begin{figure}[H]
-      \centering
-      \includegraphics[width=1\linewidth]{Information.png}
-      \caption{特征与标签的互信息}
-      \label{fig:enter-label}
-  \end{figure}
+  因此我们接着计算了特征属性与标签的互信息。互信息衡量了两个随机变量之间的“信息共享”量。如果两个随机变量 $X$ 和 $Y$ 是独立的，那么它们之间的互信息为零，表示知道一个变量不会提供关于另一个变量的任何信息。如果互信息较大，则表示两个变量之间有较强的依赖关系。
+ 
 对于两个离散随机变量 \(X\) 和 \(Y\)，互信息定义为：
 \begin{equation}
 I(X; Y) = \sum_{y \in Y} \sum_{x \in X} p(x, y) \log \left(\frac{p(x, y)}{p(x) p(y)}\right)
@@ -110,7 +104,13 @@ H(Y) = -\sum_{y \in Y} p(y) \log p(y)
 H(X, Y) = -\sum_{x \in X} \sum_{y \in Y} p(x, y) \log p(x, y)
 \label{eq:joint_entropy}
 \end{equation}
-从图中我们可以得到如下信息：
+\begin{figure}[H]
+      \centering
+      \includegraphics[width=1\linewidth]{figures/Information.png}
+      \caption{特征与标签的互信息}
+      \label{fig:Information}
+  \end{figure}
+从\autoref{fig:Information}中我们可以得到如下信息：
 \begin{itemize}
     \item 高互信息的特征：互信息值高的特征（如 '\%edx\_\%eax'、'\%r8d'、'cmp\_jle\_movl' 等）在图中以黄色或绿色显示，这些特征是我们在模型中特别需要关注的，因为它们对标签具有较高的预测能力。
     \item 低互信息或零互信息的特征：互信息值为零或接近零的特征对标签几乎没有贡献，可以考虑在特征选择过程中进行剔除或降低其权重，以简化模型。
@@ -233,10 +233,10 @@ Gini决策树的伪代码如下：
         \STATE \textbf{End Function}
     \end{algorithmic}
 \end{algorithm}
-基于伪代码，我们构建了一颗Gini决策树，如下图所示：
+基于伪代码\autoref{alg:decision_tree}，我们构建了一颗Gini决策树，如\autoref{fig:Ginitree}所示：
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{Ginitree.png}
+    \includegraphics[width=1\linewidth]{figures/Ginitree.png}
     \caption{Gini决策树}
-    \label{fig:enter-label}
+    \label{fig:Ginitree}
 \end{figure}
