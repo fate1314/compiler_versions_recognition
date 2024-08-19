@@ -1,6 +1,7 @@
 \section{问题二模型的建立与求解}
   \subsection{数据分析}
-  我们画出部分特征数据的分布，得到结果如\autoref{fig:hist}所示。从图中我们可以看出，不同版本GCC编译器生成的汇编文件对于操作码、寄存器、Bigram与block数量存在一定的差异，而这也正是我们去判断编译器版本的重要依据。
+  我们对部分特征数据的分布进行了可视化，结果如\autoref{fig
+}所示。图中展示了不同版本GCC编译器生成的汇编文件在操作码、寄存器、Bigram与block数量上的分布情况。可以明显看出，不同版本的编译器在这些特征上存在一定的差异，这些差异正是我们判断编译器版本的重要依据。通过分析这些特征的分布，我们能够更准确地捕捉到各个编译器版本之间的区别，为后续的模型训练和分析提供了有力的支持。
   \begin{figure}[H]
       \centering
       \includegraphics[width=1\linewidth]{figures/hist.png}
@@ -8,8 +9,8 @@
       \label{fig:hist}
   \end{figure}
 
-
-计算各个特征与标签的皮尔逊相关系数（Pearson Correlation Coefficient），该系数可以用来衡量适用于衡量两个连续变量之间的线性关系，皮尔逊相关系数的计算公式为
+  
+计算各个特征与标签的皮尔逊相关系数（Pearson Correlation Coefficient），该系数适用于衡量两个连续变量之间的线性关系。皮尔逊相关系数的计算公式为
 \begin{equation}
 \rho_{X,Y} = \frac{\text{cov}(X, Y)}{\sigma_X \sigma_Y}
 \label{eq:correlation}
@@ -47,7 +48,8 @@
       \caption{特征与标签的皮尔逊相关系数}
       \label{fig:corr}
   \end{figure}
-得到的结果如\autoref{fig:corr}所示，虽然图片中部分特征的相关系数较高，但是我们进行了统计显著性检验。我们设原假设$H_0$是“两个变量之间不存在线性关系”，备择假设$H_1$是“两个变量之间存在线性关系”.
+我们得到了如\autoref{fig
+}所示的结果。虽然图中显示部分特征之间的相关系数较高，但我们对这些相关性进行了统计显著性检验。具体来说，我们设立了原假设$H_0$，即“两个变量之间不存在显著的线性关系”；同时，备择假设$H_1$为“两个变量之间存在显著的线性关系”。通过对相关系数进行显著性检验，我们能够更准确地判断变量之间的关系，从而为模型的构建提供更可靠的依据。
 
 我们使用t 统计量来进行相关系数检验。t 统计量的计算公式为：
 \begin{equation}
@@ -65,18 +67,17 @@ t = \frac{r \sqrt{n - 2}}{\sqrt{1 - r^2}}
     \item \textbf{低 p 值（通常 < 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率非常低，因此我们有理由拒绝原假设，认为相关系数是显著的。
     \item \textbf{高 p 值（通常 ≥ 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率较高，因此我们无法拒绝原假设，认为相关系数可能不是显著的。
 \end{itemize}
-我们可以从\autoref{fig:p}中看到几乎所有的特征属性的$p$值都大于显著性水平
-α=0.05，则不拒绝原假设，认为相关系数可能是由于随机误差引起的，不具有统计显著性。
+从\autoref{fig}中可以看到，几乎所有特征属性的$p$值都大于显著性水平$\alpha = 0.05$，因此我们不拒绝原假设，即认为这些特征之间的相关系数可能是由于随机误差引起的。这一结果可能是因为每类数据样本中仅包含一个观测值，因此这些特征不具备统计显著性。这表明在这些特征中，无法确认显著的线性关系，因此它们对线性模型的贡献可能较为有限。这也提示我们需要进一步分析，或考虑选择其他适合的模型来更好地捕捉数据中的关系。
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{figures/p.png}
     \caption{统计显著性水平}
     \label{fig:p}
 \end{figure}
-
-
+ 
+  
   因此我们接着计算了特征属性与标签的互信息。互信息衡量了两个随机变量之间的“信息共享”量。如果两个随机变量 $X$ 和 $Y$ 是独立的，那么它们之间的互信息为零，表示知道一个变量不会提供关于另一个变量的任何信息。如果互信息较大，则表示两个变量之间有较强的依赖关系。
-
+ 
 对于两个离散随机变量 \(X\) 和 \(Y\)，互信息定义为：
 \begin{equation}
 I(X; Y) = \sum_{y \in Y} \sum_{x \in X} p(x, y) \log \left(\frac{p(x, y)}{p(x) p(y)}\right)
@@ -104,7 +105,7 @@ H(Y) = -\sum_{y \in Y} p(y) \log p(y)
 H(X, Y) = -\sum_{x \in X} \sum_{y \in Y} p(x, y) \log p(x, y)
 \label{eq:joint_entropy}
 \end{equation}
-\begin{figure}
+\begin{figure}[H]
       \centering
       \includegraphics[width=1\linewidth]{figures/Information.png}
       \caption{特征与标签的互信息}
@@ -117,7 +118,7 @@ H(X, Y) = -\sum_{x \in X} \sum_{y \in Y} p(x, y) \log p(x, y)
     \item 互信息的分布：从图中可以看出，互信息较高的特征集中在一些特定的寄存器组合或指令组合上，这表明这些组合对于模型预测特别重要。基于此，我们可以重点关注这些特征，并在模型训练中对其进行优化。
 \end{itemize}
 
-因此，我们根据数据分析以及阅读的论文，猜想特征属性与编译器版本之间存在的关系应该是非线性关系。而由于我们的数据是连续值，且考虑到不同源代码生成的汇编文件可能存在不同的特征属性，所以我们的模型还要求支持对含有缺失值的数据进行预测，综合考量，我们决定使用Gini决策树，该决策树可以很好的支持上述特性。
+因此，基于数据分析和文献阅读的结果，我们推测特征属性与编译器版本之间的关系可能是非线性的。鉴于我们的数据为连续值，并且考虑到不同源代码生成的汇编文件可能表现出不同的特征属性，我们的模型需要具备处理含有缺失值的数据的能力。经过综合考量，我们决定采用Gini决策树模型，因为它能够很好地支持上述特性，适应非线性关系，并且在面对缺失数据时依然能进行有效的预测。
     \subsection{模型说明}
     \subsubsection{Gini系数的计算}
 Gini系数是衡量数据集中样本纯度的指标。对于给定的样本集合 \(D\)，Gini系数可以表示为：
@@ -129,7 +130,10 @@ Gini(D) = 1 - \sum_{i=1}^{C} p_i^2
   \item \(p_i\) 是样本集中第 \(i\) 类的样本比例（即属于第 \(i\) 类的样本数量占总样本数量的比例）。
   \item \(C\) 是类别的数量。
 \end{itemize}
-\vspace*{1cm}
+
+
+
+
 
 \subsubsection{连续属性划分点t的确定}
 
@@ -180,7 +184,7 @@ Gini(D, A, t) = \frac{|D_{\text{left}}|}{|D|} Gini(D_{\text{left}}) + \frac{|D_{
   \item \(Gini(D_{\text{left}})\) 和 \(Gini(D_{\text{right}})\) 分别是两个子集的Gini系数。
   \item \(|D|\) 是样本集 \(D\) 的总样本数量。
 \end{itemize}
-\vspace*{1cm}
+
 \subsubsection{处理缺失值}
 对于属性 \(A\) 存在缺失值的情况，假设缺失值比例为 \(p_{\text{missing}}\)，则Gini系数可以表示为：
 \begin{equation}
@@ -192,13 +196,13 @@ Gini(D, A) = (1 - p_{\text{missing}}) \times Gini(D_{\text{not-missing}}, A) + p
   \item \(D_{\text{missing}}\) 是属性 \(A\) 缺失值的样本集。
   \item \(Gini(D_{\text{not-missing}}, A)\) 和 \(Gini(D_{\text{missing}})\) 分别是有值样本集和缺失值样本集的Gini系数。
 \end{itemize}
-\vspace*{1cm}
+
 \subsubsection{选择最优划分}
 在考虑了所有可能的划分点 \(t\) 以及缺失值的影响后，选择使得Gini指数最小的划分点作为最终的划分点，以确保在当前节点上的样本被分成更加纯净的子集。
-\vspace*{1cm}
+
 \subsubsection{构建树结构}
 在找到最优划分后，决策树会在此处创建一个分裂节点，并将数据集分成左右子集。然后递归地对每个子集重复上述步骤，直到满足停止条件为止。
-\vspace*{1cm}
+
 \subsection{模型建立}
 Gini决策树的伪代码如下：
 \begin{algorithm}[H]
@@ -226,7 +230,7 @@ Gini决策树的伪代码如下：
         \STATE \quad 将当前节点标记为 $A^*$ 的分裂节点
         \STATE \quad 根据划分点 $t^*$ 将样本集 $D$ 分为 $D_{\text{left}}$ 和 $D_{\text{right}}$
         \STATE \quad 递归调用 \texttt{BuildTree}($D_{\text{left}}$, $A$) 和 \texttt{BuildTree}($D_{\text{right}}$, $A$)
-
+        
         \STATE \textbf{End Function}
     \end{algorithmic}
 \end{algorithm}
@@ -237,3 +241,4 @@ Gini决策树的伪代码如下：
     \caption{Gini决策树}
     \label{fig:Ginitree}
 \end{figure}
+这就是我们基于程序源代码1提取到的特征构建的判别函数。
