@@ -8,7 +8,7 @@
       \label{fig:hist}
   \end{figure}
 
-  
+
 计算各个特征与标签的皮尔逊相关系数（Pearson Correlation Coefficient），该系数可以用来衡量适用于衡量两个连续变量之间的线性关系，皮尔逊相关系数的计算公式为
 \begin{equation}
 \rho_{X,Y} = \frac{\text{cov}(X, Y)}{\sigma_X \sigma_Y}
@@ -65,7 +65,7 @@ t = \frac{r \sqrt{n - 2}}{\sqrt{1 - r^2}}
     \item \textbf{低 p 值（通常 < 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率非常低，因此我们有理由拒绝原假设，认为相关系数是显著的。
     \item \textbf{高 p 值（通常 ≥ 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率较高，因此我们无法拒绝原假设，认为相关系数可能不是显著的。
 \end{itemize}
-我们可以从\autoref{fig:p}中看到几乎所有的特征属性的$p$值都大于显著性水平 
+我们可以从\autoref{fig:p}中看到几乎所有的特征属性的$p$值都大于显著性水平
 α=0.05，则不拒绝原假设，认为相关系数可能是由于随机误差引起的，不具有统计显著性。
 \begin{figure}[H]
     \centering
@@ -73,10 +73,10 @@ t = \frac{r \sqrt{n - 2}}{\sqrt{1 - r^2}}
     \caption{统计显著性水平}
     \label{fig:p}
 \end{figure}
- 
-  
+
+
   因此我们接着计算了特征属性与标签的互信息。互信息衡量了两个随机变量之间的“信息共享”量。如果两个随机变量 $X$ 和 $Y$ 是独立的，那么它们之间的互信息为零，表示知道一个变量不会提供关于另一个变量的任何信息。如果互信息较大，则表示两个变量之间有较强的依赖关系。
- 
+
 对于两个离散随机变量 \(X\) 和 \(Y\)，互信息定义为：
 \begin{equation}
 I(X; Y) = \sum_{y \in Y} \sum_{x \in X} p(x, y) \log \left(\frac{p(x, y)}{p(x) p(y)}\right)
@@ -104,7 +104,7 @@ H(Y) = -\sum_{y \in Y} p(y) \log p(y)
 H(X, Y) = -\sum_{x \in X} \sum_{y \in Y} p(x, y) \log p(x, y)
 \label{eq:joint_entropy}
 \end{equation}
-\begin{figure}[H]
+\begin{figure}
       \centering
       \includegraphics[width=1\linewidth]{figures/Information.png}
       \caption{特征与标签的互信息}
@@ -129,10 +129,7 @@ Gini(D) = 1 - \sum_{i=1}^{C} p_i^2
   \item \(p_i\) 是样本集中第 \(i\) 类的样本比例（即属于第 \(i\) 类的样本数量占总样本数量的比例）。
   \item \(C\) 是类别的数量。
 \end{itemize}
-
-
-
-
+\vspace*{1cm}
 
 \subsubsection{连续属性划分点t的确定}
 
@@ -183,7 +180,7 @@ Gini(D, A, t) = \frac{|D_{\text{left}}|}{|D|} Gini(D_{\text{left}}) + \frac{|D_{
   \item \(Gini(D_{\text{left}})\) 和 \(Gini(D_{\text{right}})\) 分别是两个子集的Gini系数。
   \item \(|D|\) 是样本集 \(D\) 的总样本数量。
 \end{itemize}
-
+\vspace*{1cm}
 \subsubsection{处理缺失值}
 对于属性 \(A\) 存在缺失值的情况，假设缺失值比例为 \(p_{\text{missing}}\)，则Gini系数可以表示为：
 \begin{equation}
@@ -195,13 +192,13 @@ Gini(D, A) = (1 - p_{\text{missing}}) \times Gini(D_{\text{not-missing}}, A) + p
   \item \(D_{\text{missing}}\) 是属性 \(A\) 缺失值的样本集。
   \item \(Gini(D_{\text{not-missing}}, A)\) 和 \(Gini(D_{\text{missing}})\) 分别是有值样本集和缺失值样本集的Gini系数。
 \end{itemize}
-
+\vspace*{1cm}
 \subsubsection{选择最优划分}
 在考虑了所有可能的划分点 \(t\) 以及缺失值的影响后，选择使得Gini指数最小的划分点作为最终的划分点，以确保在当前节点上的样本被分成更加纯净的子集。
-
+\vspace*{1cm}
 \subsubsection{构建树结构}
 在找到最优划分后，决策树会在此处创建一个分裂节点，并将数据集分成左右子集。然后递归地对每个子集重复上述步骤，直到满足停止条件为止。
-
+\vspace*{1cm}
 \subsection{模型建立}
 Gini决策树的伪代码如下：
 \begin{algorithm}[H]
@@ -229,7 +226,7 @@ Gini决策树的伪代码如下：
         \STATE \quad 将当前节点标记为 $A^*$ 的分裂节点
         \STATE \quad 根据划分点 $t^*$ 将样本集 $D$ 分为 $D_{\text{left}}$ 和 $D_{\text{right}}$
         \STATE \quad 递归调用 \texttt{BuildTree}($D_{\text{left}}$, $A$) 和 \texttt{BuildTree}($D_{\text{right}}$, $A$)
-        
+
         \STATE \textbf{End Function}
     \end{algorithmic}
 \end{algorithm}
