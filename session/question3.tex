@@ -250,7 +250,6 @@ $\gamma$和$\lambda$是超参数，分别控制叶子结点的个数和叶子结
 \par
 对于$d$个特征，每个特征，都可以以$O(1)$的速度构建计算增益，每一层都需要$n\log n$的时间排序选出最佳特征，一共$K$层。一共有$M$棵树，因此整个XGBoost算法的时间复杂度为$O(MKdn\log{n})$
 \vspace*{1cm}
-\newpage
 \subsection{实验结果}
 当加入新的数据后，使用t-SNE算法对数据进行降维可视化，结果如\autoref{fig:tsne_new}所示。
 \begin{figure}[H]

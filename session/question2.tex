@@ -68,7 +68,7 @@
 	\item \textbf{高 p 值（通常 ≥ 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率较高，因此我们无法拒绝原假设，认为相关系数可能不是显著的。
 \end{itemize}
 从\autoref{fig:p}中可以看到，几乎所有特征属性的$p$值都大于显著性水平$\alpha = 0.05$，因此我们不拒绝原假设，即认为这些特征之间的相关系数可能是由于随机误差引起的。这一结果可能是因为每类数据样本中仅包含一个观测值，因此这些特征不具备统计显著性。这表明在这些特征中，无法确认显著的线性关系，因此它们对线性模型的贡献可能较为有限。这也提示我们需要进一步分析，或考虑选择其他适合的模型来更好地捕捉数据中的关系。
-\begin{figure}[H]
+\begin{figure}
 	\centering
 	\includegraphics[width=0.75\linewidth]{figures/p.png}
 	\caption{统计显著性水平}
@@ -107,7 +107,7 @@
 \end{equation}
 \begin{figure}
 	\centering
-	\includegraphics[width=0.75\textwidth]{figures/Information.png}
+	\includegraphics[width=1\textwidth]{figures/Information.png}
 	\caption{特征与标签的互信息}
 	\label{fig:Information}
 \end{figure}
@@ -236,7 +236,7 @@ Gini决策树的伪代码如下：
 	\end{algorithmic}
 \end{breakablealgorithm}
 基于Scikit-learn\cite{scikit-learn}，我们构建了一颗Gini决策树，如\autoref{fig:Ginitree}所示：
-\begin{figure}[H]
+\begin{figure}
 	\centering
 	\includegraphics[width=1\linewidth]{figures/Ginitree.png}
 	\caption{Gini决策树}
