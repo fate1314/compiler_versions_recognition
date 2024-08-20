@@ -8,8 +8,8 @@
 \centering%把表居中
 \begin{tabular}{lccccc}%三列，内容全部居中
 \toprule%第一道横线
- feature\_name&8.4.0 & 10.2.0 & 11.3.0 & 12.2.0 & 13.2.0 \\ 
-\midrule%第二道横线 
+ feature\_name&8.4.0 & 10.2.0 & 11.3.0 & 12.2.0 & 13.2.0 \\
+\midrule%第二道横线
 \$0\_\%ecx&3&3&3&3&2 \\
 \$0\_\%rax&4 & 85 & 85 & 4 & 4 \\
 \$0\_\%rbp&40 & 40 & 40 & 40 & 38 \\
@@ -28,13 +28,15 @@ subq\_movl\_movl&3 & 3 & 3 & 3 & 1 \\
 我们直接使用问题二构建的Gini决策树进行版本预测，最终得到的预测结果如\autoref{fig:tree_pre}所示：
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.75\linewidth]{figures/tree_pre.png}
+    % \includegraphics[width=0.75\linewidth]{figures/tree_pre.png}
     \caption{问题二判别函数预测结果}
     \label{fig:tree_pre}
 \end{figure}
 在这张图中，标签 0, 1, 2, 3, 4 分别对应的是 GCC 编译器版本 8.4.0、10.2.0、11.3.0、12.2.0 和 13.2.0。从图像中我们可以清楚地看到，对于真实标签为 1, 2, 3 的汇编文件，模型全部预测正确，说明模型在这些版本之间的区分能力较好。然而，对于真实标签为 0 和 4 的汇编文件，模型却将它们全部错误地预测为标签 3 的汇编文件。这种明显的误分类现象表明，模型在区分这些特定版本时存在严重问题。
 
 考虑到当前数据集的样本量相对较少，以及决策树模型在处理数据复杂性和高维特征时的局限性，我们的判别函数存在显著的不足。因此，模型的预测性能需要进一步改进。
+\vspace*{1cm}
+
 \subsection{决策树模型分析}
 决策树模型作为一种简单且直观的机器学习算法，广泛应用于分类和回归任务。然而，尽管其易于理解和解释，决策树模型也存在一些固有的缺陷，决策树模型存在以下几个缺陷：
 \begin{itemize}
@@ -54,7 +56,7 @@ subq\_movl\_movl&3 & 3 & 3 & 3 & 1 \\
 
 并且，在我们的实验中，我们发现如果只使用附件1或者是附件2来构建模型，模型的预测结果将会趋向于随机猜测，而非根据编译器的特征进行预测。
 \par
-从数据的分布来看，我们使用t-SNE算法对数据进行降维可视化,t-分布邻域嵌入（t-distributed Stochastic Neighbor Embedding，t-SNE）\cite{JMLR:v9:vandermaaten08a}是一种非线性降维技术，特别适用于高维数据的可视化。t-SNE通过将高维数据映射到低维空间，同时\textbf{尽可能保持数据点之间的局部结构}，从而揭示数据的内在结构和模式。t-ESN算法通过优化KL散读来最小化高维空间和低维空间之间的分布差异，从而实现降维。t-SNE的优化目标是最小化高维空间和低维空间之间的KL散度，KL散度定义如下:
+从数据的分布来看，我们使用t-SNE算法对数据进行降维可视化,t-分布邻域嵌入（t-distributed Stochastic Neighbor Embedding，t-SNE）\cite{JMLR:v9:vandermaaten08a}是一种非线性降维技术，特别适用于高维数据的可视化。t-SNE通过将高维数据映射到低维空间，同时\textbf{尽可能保持数据点之间的局部结构}，从而揭示数据的内在结构和模式。t-ESN算法通过优化KL散度来最小化高维空间和低维空间之间的分布差异，从而实现降维。t-SNE的优化目标是最小化高维空间和低维空间之间的KL散度，KL散度定义如下:
 \begin{equation}
 	C=KL(P||Q)=\sum_i\sum_jp_{ij}\log\frac{p_{ij}}{q_{ij}},
 \end{equation}
@@ -72,10 +74,10 @@ subq\_movl\_movl&3 & 3 & 3 & 3 & 1 \\
 \end{equation}
 动量项通过在更新过程中加入前几次更新的累积效果，可以帮助算法在梯度方向上更快地移动，并且通过平滑更新路径，能够有效减少震荡，使得优化过程更加稳定。加入动量后的更新公式为
 \begin{equation}
-	y_i^{(t+1)}=y_i^{(t)}+\eta\frac{\delta C}{\delta y_i}+\alpha(y_i^{(t)}-y_i^{(t-1)})m
+	y_i^{(t+1)}=y_i^{(t)}+\eta\frac{\delta C}{\delta y_i}+\alpha(y_i^{(t)}-y_i^{(t-1)})
 \end{equation}
-综上所述，T-SNE算法流程如\autoref{alg:tsne}所示。
-\begin{algorithm}[H]
+综上所述，t-SNE算法流程如\autoref{alg:tsne}所示。
+\begin{breakablealgorithm}
 	\caption{t-SNE}
 	\label{alg:tsne}
 	\begin{algorithmic}
@@ -102,7 +104,7 @@ subq\_movl\_movl&3 & 3 & 3 & 3 & 1 \\
 		\]
 		\ENDFOR
 	\end{algorithmic}
-\end{algorithm}
+\end{breakablealgorithm}
 我们使用Scikit-learn\cite{scikit-learn}实现t-SNE算法的可视化，结果如\autoref{fig:tsne}所示。
 \begin{figure}[H]
 	\centering
@@ -142,12 +144,15 @@ subq\_movl\_movl&3 & 3 & 3 & 3 & 1 \\
 \end{itemize}
 通过这些优势，XGBoost成为我们在处理复杂数据集和追求高效、准确预测时的理想选择。
 XGBoost的原理如下:
-假设已经训练了$t-1$个模型，现在准备增加一个模型$f_t(x)$，使得目标函数:
+假设已经训练并且集成了$t-1$个模型:
+\begin{equation}
+	F_t=\sum_{i=1}^{t-1}f_i(x),
+\end{equation}
+现在准备增加一个模型$f_t(x)$,并集成到模型中，使得目标函数:
 \begin{equation}
 	\mathcal{L}(F_{t-1}+\alpha f_t)=\sum_{i=1}^{n}l(y_i,\hat{y}^{(t)})+\Omega(f_t),
 \end{equation}
-最小化，其中$\hat{y}^{(t)}=F_{t-1}(x)+f_t(x)$，$\Omega(f_t)$是正则化项，$l(y_i,\hat{y}^{(t)})$是损失函数，$n$ 是样本数量。我们对损失函数$l(y_i,\hat{y}^{(t)})$在$F_{t-1}(x)+f_t(x)$处进行二阶泰勒展开，并且忽略余项，那么我们可以得到
-\begin{equation}
+最小化，其中$\hat{y}^{(t)}=F_{t-1}(x)+f_t(x)$，$\Omega(f_t)$是正则化项，$l(y_i,\hat{y}^{(t)})$是损失函数，$n$ 是样本数量。我们对损失函数$l(y_i,\hat{y}^{(t)})$在$F_{t-1}(x)+f_t(x)$处进行二阶泰勒展开，并且忽略余项，那么我们可以得到 \begin{equation}
 	l(y_i,\hat{y}^{(t)})\approx\sum_{i=1}^{n}\left[l\left(y_{i},\hat{y}_{i}^{(t-1)}\right)+g_{i}f_{t}(x_{i})+\frac{1}{2}h_{i}f_{t}^{2}(x_{i})\right],
 \end{equation}
 其中$g_i=\nabla_{\hat{y}^{(t-1)}}l\left(y_i,\hat{y}_i^{(t-1)}\right)\quad h_i=\nabla_{\hat{y}^{(t-1)}}^2l\left(y_i,\hat{y}_i^{(t-1)}\right)$，对于每个叶子结点的预测
@@ -163,7 +168,7 @@ $\gamma$和$\lambda$是超参数，分别控制叶子结点的个数和叶子结
 	\begin{aligned}
 		\mathcal{L}^{(t)} & \simeq\sum_{i=1}^{n}\left[l\left(y_{i},\hat{y}_{i}^{(t-1)}\right)+g_{i}f_{t}(x_{i})+\frac{1}{2}h_{i}f_{t}^{2}(x_{i})\right]+\Omega(f_{t})
 		\\
-		                  & =\sum_{i=1}^{n}\left[g_{i}f_{t}(x_{i})+\frac{1}{2}h_{i}f_{t}^{2}(x_{i})\right]+\gamma T+\frac{1}{2}\lambda\sum_{j=1}^{T}w_{j}^{2}+co
+		                  & =\sum_{i=1}^{n}\left[g_{i}f_{t}(x_{i})+\frac{1}{2}h_{i}f_{t}^{2}(x_{i})\right]+\gamma T+\frac{1}{2}\lambda\sum_{j=1}^{T}w_{j}^{2}+const
 		\\
 		                  & =\sum_{j=1}^{T}\left[(\sum_{i\in I_{i}}g_{i})w_{j}+\frac{1}{2}(\sum_{i\in I_{i}}h_{i}+\lambda)w_{j}^{2}\right]+\gamma T+const
 	\end{aligned}
@@ -180,7 +185,7 @@ $\gamma$和$\lambda$是超参数，分别控制叶子结点的个数和叶子结
 \begin{equation}
 	w_{j}^{*}=-\frac{G_{j}}{H_{j}+\lambda}\quad \mathcal{L}^{(t)}=-\frac{1}{2}\sum_{i=1}^{T}\:\frac{G_{j}^{2}}{H_{j}+\lambda}+\gamma T,
 \end{equation}
-那么在构建决策树时，我们可以通过贪心算法，从根节点开始，对每个叶子结点，计算其最优的权重$w_j$，然后计算损失函数，
+那么在构建决策树时，与之前的决策树一样，我们可以通过贪心算法，从根节点开始，对每个叶子结点，计算其最优的权重$w_j$，然后计算损失函数，
 \begin{equation}
 	\text{Gain}=\frac{1}{2}(\frac{G_{L}^{2}}{H_{L}+\lambda}+\frac{G_{R}^{2}}{H_{R}+\lambda}-\frac{(G_{L}+G_{R})^{2}}{H_{L}+H_{R}+\lambda})-\gamma,
 \end{equation}
@@ -193,37 +198,60 @@ $\gamma$和$\lambda$是超参数，分别控制叶子结点的个数和叶子结
 \begin{equation}
 	g_i=\hat{y}_i^{(t-1)}-y_i ,\quad h_i=\hat{y}_i^{(t-1)}(1-\hat{y}_i^{(t-1)})，
 \end{equation}
-
-最终，XGBoost的算法如\autoref{alg:xgboost}所示。
-\begin{algorithm}[H]
+当递归构建完成一棵树后，就可以把新构建的树集成到模型中:
+\begin{equation}
+	F_t=F_{t-1}+\eta f_t,
+\end{equation}
+其中$\eta$是超参数学习率.最终，XGBoost的算法如\autoref{alg:xgboost}所示。
+\begin{breakablealgorithm}
 	\caption{XGBoost}
 	\label{alg:xgboost}
 	\begin{algorithmic}[1]
-		\REQUIRE 超参数：$\lambda$ 和 $\gamma$。特征$X$，标签$Y$。停止条件:树的最大深度$K$。
+		\REQUIRE 超参数：$\lambda$ 和 $\gamma$。特征$X$，标签$Y$。停止条件:树的最大深度$K$，集成个数M。
 		\ENSURE 集成模型XGBoost
 
-		\STATE \textbf{计算梯度和二阶导数}：
-		\FOR{每个样本 $i$}
-		\STATE 计算损失函数的一阶梯度 $g_i$ 和二阶导数 $h_i$。
+		\STATE 初始化模型的预测值 $\hat{y}_i^{(0)} = 0$ 对于所有样本 $i$
+		\FOR{每轮迭代 $t = 1, 2, \ldots, M$}
+		    \STATE \textbf{计算梯度和二阶导数}：
+		    \FOR{每个样本 $i$}
+		        \STATE 计算损失函数的一阶梯度 $g_i = \nabla_{\hat{y}_i^{(t-1)}} l(y_i, \hat{y}_i^{(t-1)})$ 和二阶导数 $h_i = \nabla_{\hat{y}_i^{(t-1)}}^2 l(y_i, \hat{y}_i^{(t-1)})$。
+		    \ENDFOR
+		    \STATE \textbf{遍历所有特征}：
+		    \FOR{每个特征 $j$}
+		        \STATE 计算所有可能的分裂点。
+		        \FOR{每个分裂点}
+		            \STATE 将数据集分为左子集 $L$ 和右子集 $R$。
+		            \STATE 计算左子集和右子集的梯度和二阶导数之和：
+		            \STATE $G_L = \sum_{i \in L} g_i, \quad H_L = \sum_{i \in L} h_i$
+		            \STATE $G_R = \sum_{i \in R} g_i, \quad H_R = \sum_{i \in R} h_i$
+		            \STATE 计算分裂增益：
+		            \STATE $\text{Gain} = \frac{1}{2}\left(\frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda}\right) - \gamma$
+		        \ENDFOR
+		    \ENDFOR
+		    \STATE \textbf{选择最佳分裂点}：
+		    \STATE 对于每个特征，选择具有最大增益的分裂点。
+		    \STATE 在所有特征中，选择增益最大的分裂点作为最终的分裂点。
+		    \STATE \textbf{递归分裂}：
+		    \STATE 对于新的左子树和右子树，重复步骤3至7，直到满足停止条件。
+		    \STATE \textbf{更新模型}：
+		    \STATE 使用当前树的预测结果更新模型的预测值 $\hat{y}_i^{(t)} = \hat{y}_i^{(t-1)} + \eta f_t(x_i)$，其中 $\eta$ 是学习率，$f_t(x_i)$ 是当前树的预测。
+			\STATE 更新模型
+		     \[
+			 F_t=F_{t-1}+\eta f_t(x)
+			 \]
 		\ENDFOR
-		\STATE \textbf{遍历所有特征}：
-		\FOR{每个特征 $j$}
-		\STATE 计算所有可能的分裂点。
-		\FOR{每个分裂点}
-		\STATE 将数据集分为左子集 $L$ 和右子集 $R$。
-		\STATE 计算左子集和右子集的梯度和二阶导数之和：
-		\STATE $G_L = \sum_{i \in L} g_i, \quad H_L = \sum_{i \in L} h_i$
-		\STATE $G_R = \sum_{i \in R} g_i, \quad H_R = \sum_{i \in R} h_i$
-		\STATE 计算分裂增益：
-		\STATE $\text{Gain} = \frac{1}{2}\left(\frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda}\right) - \gamma$
-		\ENDFOR
-		\ENDFOR
-		\STATE \textbf{选择最佳分裂点}：
-		\STATE 对于每个特征，选择具有最大增益的分裂点。
-		\STATE 在所有特征中，选择增益最大的分裂点作为最终的分裂点。
-		\STATE \textbf{递归分裂}：
-		\STATE 对于新的左子树和右子树，重复步骤2至5，直到满足停止条件
+		\RETURN
 	\end{algorithmic}
-\end{algorithm}
+\end{breakablealgorithm}
 \par
-对于$d$个特征，每个特征，都可以以$O(1)$的速度构建计算增益，每一层都需要$n\log n$的时间排序选出最佳特征，一共$K$层，因此整个XGBoost算法的时间复杂度为$O(Kdn\log{n})$
+对于$d$个特征，每个特征，都可以以$O(1)$的速度构建计算增益，每一层都需要$n\log n$的时间排序选出最佳特征，一共$K$层。一共有$M$棵树，因此整个XGBoost算法的时间复杂度为$O(MKdn\log{n})$
+\vspace*{1cm}
+\subsection{实验结果}
+基于XGBoost，超参数如下:树的最大深度max\_depth=50 ；学习率$\eta$=0.4 ；正则化参数$\lambda$=1 ；叶子结点权重的正则化参数$\gamma$=0,集成模型个数n\_estimators=100，基本模型为\textbf{gbtree}。我们使用1000个随机生成的程序样本和附件一进行训练，得到的模型在附件二的预测结果如\autoref{fig:xgboost}所示。
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figures/new_corr.png}
+	\caption{XGBoost预测结果}
+	\label{fig:xgboost}
+\end{figure}
+从\autoref{fig:xgboost}可以看出，XGBoost预测准确率为\textbf{0.6}，相较于一般的决策树模型提高了一倍。
