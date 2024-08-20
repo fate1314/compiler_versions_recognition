@@ -67,16 +67,16 @@ t = \frac{r \sqrt{n - 2}}{\sqrt{1 - r^2}}
     \item \textbf{低 p 值（通常 < 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率非常低，因此我们有理由拒绝原假设，认为相关系数是显著的。
     \item \textbf{高 p 值（通常 ≥ 0.05）}：意味着在原假设为真的情况下，观察到当前相关系数的概率较高，因此我们无法拒绝原假设，认为相关系数可能不是显著的。
 \end{itemize}
-从\autoref{fig}中可以看到，几乎所有特征属性的$p$值都大于显著性水平$\alpha = 0.05$，因此我们不拒绝原假设，即认为这些特征之间的相关系数可能是由于随机误差引起的。这一结果可能是因为每类数据样本中仅包含一个观测值，因此这些特征不具备统计显著性。这表明在这些特征中，无法确认显著的线性关系，因此它们对线性模型的贡献可能较为有限。这也提示我们需要进一步分析，或考虑选择其他适合的模型来更好地捕捉数据中的关系。
+从\autoref{fig:p}中可以看到，几乎所有特征属性的$p$值都大于显著性水平$\alpha = 0.05$，因此我们不拒绝原假设，即认为这些特征之间的相关系数可能是由于随机误差引起的。这一结果可能是因为每类数据样本中仅包含一个观测值，因此这些特征不具备统计显著性。这表明在这些特征中，无法确认显著的线性关系，因此它们对线性模型的贡献可能较为有限。这也提示我们需要进一步分析，或考虑选择其他适合的模型来更好地捕捉数据中的关系。
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{figures/p.png}
+    \includegraphics[width=0.75\linewidth]{figures/p.png}
     \caption{统计显著性水平}
     \label{fig:p}
 \end{figure}
  
   
-  因此我们接着计算了特征属性与标签的互信息。互信息衡量了两个随机变量之间的“信息共享”量。如果两个随机变量 $X$ 和 $Y$ 是独立的，那么它们之间的互信息为零，表示知道一个变量不会提供关于另一个变量的任何信息。如果互信息较大，则表示两个变量之间有较强的依赖关系。
+  因此我们接着计算了特征属性与标签的互信息。由于我们的标签是离散属性，而特征是连续属性。所以我们将特征进行离散化处理，以便于计算互信息。互信息衡量了两个随机变量之间的“信息共享”量。如果两个随机变量 $X$ 和 $Y$ 是独立的，那么它们之间的互信息为零，表示知道一个变量不会提供关于另一个变量的任何信息。如果互信息较大，则表示两个变量之间有较强的依赖关系。
  
 对于两个离散随机变量 \(X\) 和 \(Y\)，互信息定义为：
 \begin{equation}
@@ -107,7 +107,7 @@ H(X, Y) = -\sum_{x \in X} \sum_{y \in Y} p(x, y) \log p(x, y)
 \end{equation}
 \begin{figure}[H]
       \centering
-      \includegraphics[width=1\linewidth]{figures/Information.png}
+      \includegraphics[width=0.75\linewidth]{figures/Information.png}
       \caption{特征与标签的互信息}
       \label{fig:Information}
   \end{figure}
@@ -121,7 +121,7 @@ H(X, Y) = -\sum_{x \in X} \sum_{y \in Y} p(x, y) \log p(x, y)
 因此，基于数据分析和文献阅读的结果，我们推测特征属性与编译器版本之间的关系可能是非线性的。鉴于我们的数据为连续值，并且考虑到不同源代码生成的汇编文件可能表现出不同的特征属性，我们的模型需要具备处理含有缺失值的数据的能力。经过综合考量，我们决定采用Gini决策树模型，因为它能够很好地支持上述特性，适应非线性关系，并且在面对缺失数据时依然能进行有效的预测。
     \subsection{模型说明}
     \subsubsection{Gini系数的计算}
-Gini系数是衡量数据集中样本纯度的指标。对于给定的样本集合 \(D\)，Gini系数可以表示为：
+gini系数的定义是样本属于不同类的概率之和，用于衡量纯度。对于给定的样本集合 \(D\)，Gini系数可以表示为：
 \begin{equation}
 Gini(D) = 1 - \sum_{i=1}^{C} p_i^2
 \end{equation}
@@ -159,7 +159,12 @@ D_{\text{right}} = \{x \in D \mid A(x) > t_i\}
 \begin{equation}
 Gini(D, A, t_i) = \frac{|D_{\text{left}}|}{|D|} Gini(D_{\text{left}}) + \frac{|D_{\text{right}}|}{|D|} Gini(D_{\text{right}})
 \end{equation}
-
+其中：
+\begin{itemize}
+  \item \(|D_{\text{left}}|\) 和 \(|D_{\text{right}}|\) 是两个子集的样本数量。
+  \item \(Gini(D_{\text{left}})\) 和 \(Gini(D_{\text{right}})\) 分别是两个子集的Gini系数。
+  \item \(|D|\) 是样本集 \(D\) 的总样本数量。
+\end{itemize}
 \paragraph{选择最优划分点}
 最优划分点 \(t^*\) 是使得Gini指数最小的划分点：
 \begin{equation}
@@ -178,12 +183,7 @@ t^* = \arg\min_{t_i} Gini(D, A, t_i)
 \begin{equation}
 Gini(D, A, t) = \frac{|D_{\text{left}}|}{|D|} Gini(D_{\text{left}}) + \frac{|D_{\text{right}}|}{|D|} Gini(D_{\text{right}})
 \end{equation}
-其中：
-\begin{itemize}
-  \item \(|D_{\text{left}}|\) 和 \(|D_{\text{right}}|\) 是两个子集的样本数量。
-  \item \(Gini(D_{\text{left}})\) 和 \(Gini(D_{\text{right}})\) 分别是两个子集的Gini系数。
-  \item \(|D|\) 是样本集 \(D\) 的总样本数量。
-\end{itemize}
+
 
 \subsubsection{处理缺失值}
 对于属性 \(A\) 存在缺失值的情况，假设缺失值比例为 \(p_{\text{missing}}\)，则Gini系数可以表示为：
