@@ -1,0 +1,295 @@
+
+\section*{关键程序代码}
+\vspace*{1cm}
+\subsection*{汇编文件预处理}
+\begin{lstlisting}
+import os
+import re
+
+def process_assembly_file(input_file, output_file):
+    # 读取原始汇编文件
+    with open(input_file, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    # 创建一个新的列表来存储修改后的内容
+    processed_lines = []
+
+    # 遍历原文件的每一行
+    for line in lines:
+        # 将逗号替换为空格
+        line = line.replace(',', ' ')
+
+        # 去除每行的前后空格
+        stripped_line = line.strip()
+
+        # 跳过以 . 开头或以 : 结尾的行
+        if stripped_line.startswith('.') or stripped_line.endswith(':'):
+            continue
+
+        # 按空格分割行内的内容，得到每个单词
+        words = re.split(r'\s+', stripped_line)
+
+        # 处理每个单词
+        processed_words = []
+        for word in words:
+            # 查找是否有括号，并替换为括号内的内容
+            match = re.search(r'\((%[a-zA-Z0-9]+)\)', word)
+            if match:
+                word = match.group(1)
+
+            # 处理以 $ 开头的单词
+            if word.startswith('$'):
+                if re.match(r'\$\d+', word):  # 如果 $ 后跟数字
+                    word = '$0'
+                elif re.match(r'\$-', word):  # 如果 $ 后跟负号
+                    word = '$0'
+                elif word.startswith('$.'):  # 如果 $ 后跟 .
+                    word = '$.'
+                elif word.startswith('$g'):  # 如果 $ 后跟 g
+                    word = '$g'
+
+            processed_words.append(word)
+
+        # 将处理后的单词重新组合成一行
+        processed_line = ' '.join(processed_words)
+        processed_lines.append(processed_line + '\n')  # 保持行的格式
+
+    # 写入新的汇编文件
+    with open(output_file, 'w', encoding='utf-8') as file:
+        file.writelines(processed_lines)
+
+
+def process_all_files(input_folder, output_folder):
+    # 如果输出文件夹不存在，则创建
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    # 遍历输入文件夹中的所有文件
+    for filename in os.listdir(input_folder):
+        # 构造完整的文件路径
+        input_file = os.path.join(input_folder, filename)
+        output_file = os.path.join(output_folder, filename)
+
+        # 处理每个文件
+        process_assembly_file(input_file, output_file)
+
+
+input_folders = ['8.4.0', '10.2.0', '11.3.0', '12.2.0', '13.2.0']
+output_folders = [f"{folder}_processed" for folder in input_folders]
+
+print(output_folders)
+
+# 处理所有文件
+for input_folder, output_folder in zip(input_folders, output_folders):
+    process_all_files(input_folder, output_folder)
+
+print("所有文件处理完毕。")
+
+\end{lstlisting}
+\vspace*{1cm}
+\subsection*{特征提取}
+
+\begin{lstlisting}
+import csv
+import os
+from collections import Counter
+
+file_count = 0  # 初始化文件计数器
+
+
+def process_folder(folder_name):
+    data = []
+    global file_count
+    file_count += 1  # 每处理一个文件夹，计数器加一
+    for filename in os.listdir(folder_name):
+        print(f"Processing {filename}...")
+        if 'test' not in filename:
+            print(f"Skipping {filename}...")
+            continue
+        file_path = os.path.join(folder_name, filename)
+        with open(file_path, 'r') as file:
+            word_counter = Counter()
+            bigram_counter = Counter()
+            first_word_list = []
+
+            for line in file:
+                words = line.strip().split()
+                if not words:
+                    continue
+                first_word_list.append(words[0])
+                word_counter.update(words)
+                bigram_counter.update(zip(words[:-1], words[1:]))
+
+            # 计算四元组（四个连续单词）的频率
+            quadgram_counter = Counter(
+                zip(first_word_list[:-3], first_word_list[1:-2],
+                    first_word_list[2:-1], first_word_list[3:]))
+
+            # 筛选频率大于10的特征
+            word_features = {
+                word: count
+                for word, count in word_counter.items() if count > 10
+            }
+            bigram_features = {
+                " ".join(bigram): count
+                for bigram, count in bigram_counter.items() if count > 10
+            }
+            quadgram_features = {
+                " ".join(quadgram): count
+                for quadgram, count in quadgram_counter.items() if count > 10
+            }
+
+            # 构建一行数据
+            features = {
+                **word_features,
+                **bigram_features,
+                **quadgram_features
+            }
+            features['label'] = file_count  # 标签为当前文件的编号
+
+            data.append(features)
+
+    return data
+
+
+def save_to_csv(data, output_file):
+    keys = set()
+    for row in data:
+        keys.update(row.keys())
+
+    keys = sorted(keys)  # 按字母排序，确保一致性
+    with open(output_file, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=keys)
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
+
+
+# 定义已处理的文件夹列表
+processed_folders = [
+    '8.4.0_processed', '10.2.0_processed', '11.3.0_processed',
+    '12.2.0_processed', '13.2.0_processed'
+]
+
+# 初始化用于保存所有文件夹数据的列表
+all_data = []
+
+# 遍历每个文件夹并处理数据
+for folder in processed_folders:
+    folder_data = process_folder(folder)
+    all_data.extend(folder_data)
+
+# 保存合并后的数据到CSV文件
+save_to_csv(all_data, 'no_our_data.csv')
+
+\end{lstlisting}
+\vspace*{1cm}
+\subsection*{模型建立}
+\begin{lstlisting}
+import pandas as pd
+from sklearn.model_selection import train_test_split
+import lightgbm as lgb
+from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+
+df = pd.read_csv('processed_data2.csv')
+df.fillna(0, inplace=True)
+df[f'testb %al'], df['label'] = df['testb %al'], df['label']
+X = df.drop(columns=['label'])
+y = df['label']
+y = y - 1
+
+num_others_data = 1002
+file1_idx = [i + num_others_data * j for i in range(1) for j in range(5)]
+file2_idx = [i + num_others_data * j for i in range(1, 2) for j in range(5)]
+our_data_idx = [i + num_others_data * j for i in range(2) for j in range(5)]
+others_data_idx = df.index.difference(our_data_idx + file1_idx + file2_idx)
+file1_data = X.iloc[file1_idx]
+file2_data = X.iloc[file2_idx]
+our_data = X.iloc[our_data_idx]
+
+tsne = TSNE(n_components=2, perplexity=2, random_state=42, n_jobs=-1)
+X_tsne = tsne.fit_transform(X)
+df_tsne = pd.DataFrame(X_tsne, columns=['Component 1', 'Component 2'])
+df_tsne['label'] = y
+# 绘制 t-SNE 图像，使用标签 y 进行着色
+plt.figure(figsize=(10, 10))
+s = 30
+scatter = plt.scatter(df_tsne['Component 1'],
+                      df_tsne['Component 2'],
+                      c=df_tsne['label'],
+                      cmap='tab10',
+                      marker='o',
+                      edgecolor='k',
+                      s=s)
+plt.scatter(df_tsne.loc[file1_idx]['Component 1'],
+            df_tsne.loc[file1_idx]['Component 2'],
+            c='fuchsia',
+            marker='o',
+            edgecolor='k',
+            label='file1',
+            s=s)
+plt.scatter(df_tsne.loc[file2_idx]['Component 1'],
+            df_tsne.loc[file2_idx]['Component 2'],
+            c='lightpink',
+            marker='o',
+            label='file2',
+            edgecolor='k',
+            s=s)
+
+legend1 = plt.legend(*scatter.legend_elements(),
+                     title="Labels",
+                     loc='upper left')
+plt.gca().add_artist(legend1)
+plt.legend(loc='upper right')
+plt.title('t-SNE Visualization')
+plt.grid(True)
+plt.show()
+
+from xgboost import XGBClassifier
+import warnings
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+)
+warnings.filterwarnings('ignore')
+xgb_params = {
+    "objective": "binary:logistic",  # 目标函数：二分类逻辑回归
+    "max_depth": 50,  # 树的最大深度
+    "eta": 0.4,  # 学习率
+    "subsample": 1,  # 采样率
+    'sampling_method': 'uniform',  # 采样算法,uniform:均匀采样,gradient_based:梯度采样
+    "colsample_bytree": 1,  # 构建每棵树时，使用特征的比例
+    "colsample_bylevel": 1,  # 树的每一级的每一次分裂，对特征的采样比例
+    "reg_lambda": 1,  # L2 正则化
+    "reg_alpha": 1,  # L1 正则化
+    "min_child_weight": 1,  # 最小的叶子节点样本权重和
+    "gamma": 0,  # 节点分裂所需的最小损失函数减少量
+    "eval_metric": "logloss",  # 评估指标：对数损失
+    "scale_pos_weight": 1,  # 用于处理类别不平衡 negative:positive
+    "tree_method": "hist",  # 树构建算法 ['exact', 'approx', 'hist', 'gpu_hist']
+    'device': 'gpu',
+    "nthread": -1,  # 使用所有可用线程
+    # "seed":42,  # 随机数种子
+    "n_estimators": 100,  # 决策树个数
+    "booster": "gbtree",  # 基本模型
+    'max_delta_step': 0,  # 限制每棵树权重改变的最大步长,0表示没有约束
+}
+model = XGBClassifier(**xgb_params)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X)
+y_pred_ours = y_pred[file2_idx]
+cm = confusion_matrix(y[file2_idx], y_pred_ours)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot(cmap="Blues")
+plt.title('Confusion Matrix')
+
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+\end{lstlisting}

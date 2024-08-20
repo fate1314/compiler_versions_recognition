@@ -121,8 +121,8 @@
 因此，基于数据分析和文献阅读的结果，我们推测特征属性与编译器版本之间的关系可能是非线性的。鉴于我们的数据为连续值，并且考虑到不同源代码生成的汇编文件可能表现出不同的特征属性，我们的模型需要具备处理含有缺失值的数据的能力。经过综合考量，我们决定采用Gini决策树模型，因为它能够很好地支持上述特性，适应非线性关系，并且在面对缺失数据时依然能进行有效的预测。
 \vspace*{1cm}
 \subsection{模型说明}
-\subsubsection{Gini系数的计算}
-gini系数的定义是样本属于不同类的概率之和，用于衡量纯度。对于给定的样本集合 \(D\)，Gini系数可以表示为：
+\subsubsection*{Gini系数的计算}
+gini系数的定义是样本属于不同类的概率之和，用于衡量一个集合的纯度。对于给定的样本集合 \(D\)，Gini系数可以表示为：
 \begin{equation}
 	Gini(D) = 1 - \sum_{i=1}^{C} p_i^2
 \end{equation}
@@ -136,18 +136,18 @@ gini系数的定义是样本属于不同类的概率之和，用于衡量纯度�
 
 
 
-\subsubsection{连续属性划分点t的确定}
-
-\paragraph{排序连续属性的值}
+\subsubsection*{连续属性划分点t的确定}
+\par
+\textbf{排序连续属性的值}
 对于一个连续属性 \(A\)，首先对所有样本的该属性值进行排序。假设排序后的值为 \(a_1, a_2, \dots, a_n\)，其中 \(a_i\) 是第 \(i\) 个样本在属性 \(A\) 上的取值，并且满足 \(a_1 \leq a_2 \leq \dots \leq a_n\)。
 
-\paragraph{候选划分点的确定}
+\textbf{候选划分点的确定}
 候选划分点 \(t_i\) 通常选在两个相邻样本值的中间，即：
 \begin{equation}
 	t_i = \frac{a_i + a_{i+1}}{2}, \quad i = 1, 2, \dots, n-1
 \end{equation}
 
-\paragraph{计算每个划分点的Gini指数}
+\textbf{计算每个划分点的Gini指数}
 对于每个候选划分点 \(t_i\)，将数据集 \(D\) 分为两个子集 \(D_{\text{left}}\) 和 \(D_{\text{right}}\)：
 \begin{equation}
 	D_{\text{left}} = \{x \in D \mid A(x) \leq t_i\}
@@ -166,27 +166,24 @@ gini系数的定义是样本属于不同类的概率之和，用于衡量纯度�
 	\item \(Gini(D_{\text{left}})\) 和 \(Gini(D_{\text{right}})\) 分别是两个子集的Gini系数。
 	\item \(|D|\) 是样本集 \(D\) 的总样本数量。
 \end{itemize}
-\paragraph{选择最优划分点}
+
+\par
+\textbf{选择最优划分点}
 最优划分点 \(t^*\) 是使得Gini指数最小的划分点：
 \begin{equation}
 	t^* = \arg\min_{t_i} Gini(D, A, t_i)
 \end{equation}
 
 通过此方法，我们得到了最优的划分点 \(t^*\)，并将其用于决策树的构建。
-
-
-
-
-
-
-\subsubsection{处理连续属性}
+\vspace*{1cm}
+\subsubsection*{处理连续属性}
 对于连续属性 \(A\)，通过划分点 \(t\) 将样本集 \(D\) 划分为两个子集：\(D_{\text{left}}\) 和 \(D_{\text{right}}\)，分别表示小于等于 \(t\) 和大于 \(t\) 的样本集。划分后的Gini指数为：
 \begin{equation}
 	Gini(D, A, t) = \frac{|D_{\text{left}}|}{|D|} Gini(D_{\text{left}}) + \frac{|D_{\text{right}}|}{|D|} Gini(D_{\text{right}})
 \end{equation}
 
-
-\subsubsection{处理缺失值}
+\vspace*{1cm}
+\subsubsection*{处理缺失值}
 对于属性 \(A\) 存在缺失值的情况，假设缺失值比例为 \(p_{\text{missing}}\)，则Gini系数可以表示为：
 \begin{equation}
 	Gini(D, A) = (1 - p_{\text{missing}}) \times Gini(D_{\text{not-missing}}, A) + p_{\text{missing}} \times Gini(D_{\text{missing}})
@@ -199,11 +196,11 @@ gini系数的定义是样本属于不同类的概率之和，用于衡量纯度�
 \end{itemize}
 \vspace*{1cm}
 
-\subsubsection{选择最优划分}
+\subsubsection*{选择最优划分}
 在考虑了所有可能的划分点 \(t\) 以及缺失值的影响后，选择使得Gini指数最小的划分点作为最终的划分点，以确保在当前节点上的样本被分成更加纯净的子集。
 \vspace*{1cm}
 
-\subsubsection{构建树结构}
+\subsubsection*{构建树结构}
 在找到最优划分后，决策树会在此处创建一个分裂节点，并将数据集分成左右子集。然后递归地对每个子集重复上述步骤，直到满足停止条件为止。
 \vspace*{1cm}
 

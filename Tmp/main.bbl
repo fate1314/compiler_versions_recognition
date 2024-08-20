@@ -15,16 +15,6 @@ Tianqi Chen and Carlos Guestrin.
 \newblock Xgboost: A scalable tree boosting system.
 \newblock In {\em Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, KDD '16, page 785–794, New York, NY, USA, 2016. Association for Computing Machinery.
 
-\bibitem{0Isaac}
-M.~White.
-\newblock Isaac newton: the last sorcerer.
-\newblock {\em Macmillan}.
-
-\bibitem{2016The}
-Rob Iliffe and George~E. Smith.
-\newblock The cambridge companion to newton || a brief introduction to the mathematical work of isaac newton.
-\newblock 10.1017/CCO9781139058568(9):382--420, 2016.
-
 \bibitem{Kambhamettu2022OnTN}
 Hita Kambhamettu, John Billos, Tomi Oluwaseun-Apo, Benjamin Gafford, Rohan Padhye, and Vincent~J. Hellendoorn.
 \newblock On the naturalness of fuzzer-generated code.

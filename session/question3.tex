@@ -1,5 +1,5 @@
 
-\section{问题3}
+\section{问题三}
 \subsection{模型测试}
 按照问题一中给出的提取特征的步骤，我们对程序源代码2生成的五个汇编文件进行特征提取。提取的特征数据如\autoref{tab:2}所示。
 \begin{table}[H]
@@ -28,7 +28,7 @@ subq\_movl\_movl&3 & 3 & 3 & 3 & 1 \\
 我们直接使用问题二构建的Gini决策树进行版本预测，最终得到的预测结果如\autoref{fig:tree_pre}所示：
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.75\linewidth]{figures/tree_pre.png}
+    \includegraphics[width=0.75\linewidth]{figures/tree_pre.png}
     \caption{问题二判别函数预测结果}
     \label{fig:tree_pre}
 \end{figure}
@@ -148,11 +148,15 @@ XGBoost的原理如下:
 \begin{equation}
 	F_t=\sum_{i=1}^{t-1}f_i(x),
 \end{equation}
-现在准备增加一个模型$f_t(x)$,并集成到模型中，使得目标函数:
+现在准备增加一个模型$f_t(x)$,并集成到模型中
+\begin{equation}
+	F_t=F_{t-1}+\eta f_t(x),
+\end{equation}
+其中$\eta$是超参数学习率，使得总体损失函数:
 \begin{equation}
 	\mathcal{L}(F_{t-1}+\alpha f_t)=\sum_{i=1}^{n}l(y_i,\hat{y}^{(t)})+\Omega(f_t),
 \end{equation}
-最小化，其中$\hat{y}^{(t)}=F_{t-1}(x)+f_t(x)$，$\Omega(f_t)$是正则化项，$l(y_i,\hat{y}^{(t)})$是损失函数，$n$ 是样本数量。我们对损失函数$l(y_i,\hat{y}^{(t)})$在$F_{t-1}(x)+f_t(x)$处进行二阶泰勒展开，并且忽略余项，那么我们可以得到 \begin{equation}
+最小化，其中$\hat{y}^{(t)}=F_{t-1}(x)+f_t(x)$，$\Omega(f_t)$是正则化项，$l(y_i,\hat{y}^{(t)})$是单个样的损失函数，$n$ 是样本数量，$\mathcal{L}(F_{t-1}+\alpha f_t)$是所有样本的损失函数。我们对的单个样本损失函数$l(y_i,\hat{y}^{(t)})$在$F_{t-1}(x)+f_t(x)$处进行二阶泰勒展开，并且忽略余项，那么我们可以得到 \begin{equation}
 	l(y_i,\hat{y}^{(t)})\approx\sum_{i=1}^{n}\left[l\left(y_{i},\hat{y}_{i}^{(t-1)}\right)+g_{i}f_{t}(x_{i})+\frac{1}{2}h_{i}f_{t}^{2}(x_{i})\right],
 \end{equation}
 其中$g_i=\nabla_{\hat{y}^{(t-1)}}l\left(y_i,\hat{y}_i^{(t-1)}\right)\quad h_i=\nabla_{\hat{y}^{(t-1)}}^2l\left(y_i,\hat{y}_i^{(t-1)}\right)$，对于每个叶子结点的预测
@@ -240,18 +244,37 @@ $\gamma$和$\lambda$是超参数，分别控制叶子结点的个数和叶子结
 			 F_t=F_{t-1}+\eta f_t(x)
 			 \]
 		\ENDFOR
-		\RETURN
+		\RETURN $F_M$
 	\end{algorithmic}
 \end{breakablealgorithm}
 \par
 对于$d$个特征，每个特征，都可以以$O(1)$的速度构建计算增益，每一层都需要$n\log n$的时间排序选出最佳特征，一共$K$层。一共有$M$棵树，因此整个XGBoost算法的时间复杂度为$O(MKdn\log{n})$
 \vspace*{1cm}
+\newpage
 \subsection{实验结果}
-基于XGBoost，超参数如下:树的最大深度max\_depth=50 ；学习率$\eta$=0.4 ；正则化参数$\lambda$=1 ；叶子结点权重的正则化参数$\gamma$=0,集成模型个数n\_estimators=100，基本模型为\textbf{gbtree}。我们使用1000个随机生成的程序样本和附件一进行训练，得到的模型在附件二的预测结果如\autoref{fig:xgboost}所示。
+当加入新的数据后，使用t-SNE算法对数据进行降维可视化，结果如\autoref{fig:tsne_new}所示。
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.7\textwidth]{figures/new_corr.png}
+	\includegraphics[width=0.7\textwidth]{figures/tsne_new.png}
+	\caption{加入新数据后的t-SNE降维可视化}
+	\label{fig:tsne_new}
+\end{figure}
+从\autoref{fig:tsne_new}中可以看出，添加新的数据后，整体的数据分布更加均匀，并且附件1和附件2的数据是分散在一起的，这有助于模型更好地区分不同版本的编译器。
+\par
+基于XGBoost，超参数如下:树的最大深度max\_depth=50 ；学习率$\eta$=0.4 ；正则化参数$\lambda$=1 ；叶子结点权重的正则化参数$\gamma$=0,集成模型个数n\_estimators=100，基本模型为\textbf{gbtree}。我们将所有样本使用留出法分成训练集和测试集，比例为8:2，在训练结果如\autoref{fig:xgboost}所示。
+\begin{figure}
+	\centering
+	\includegraphics[width=0.75\textwidth]{figures/xgb_predict.png}
 	\caption{XGBoost预测结果}
 	\label{fig:xgboost}
 \end{figure}
-从\autoref{fig:xgboost}可以看出，XGBoost预测准确率为\textbf{0.6}，相较于一般的决策树模型提高了一倍。
+从\autoref{fig:xgboost}可以看出，XGBoost成功预测正确四个版本，准确率为\textbf{0.8}，相较于普通的CART决策树\autoref{tree_pre},XGBoost模型的预测准确率明显提高。
+\par
+我们利用\textbf{graphviz}对XGBoost模型进行可视化，由于XGBoost是集成模型，因此这里只展示了其中一棵树的可视化结果，如\autoref{fig:tree}所示。
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{figures/tree.png}
+	\caption{XGBoost模型可视化}
+	\label{fig:tree}
+\end{figure}
+从\autoref{fig:tree}可以看出，相较于\autoref{fig:Ginitree}，XGBoost模型构建了一棵更深，更宽的决策树，树的结构非常复杂，具有更高的泛化性，并且通过集成多棵树，XGBoost模型能够有效地提高预测准确率，从而更好地区分不同版本的编译器。
