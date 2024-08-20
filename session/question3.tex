@@ -19,17 +19,17 @@
 salq\_addq\_leaq&81 & 52 & 52 & 81 & 81 \\
 subq&8 & 8 & 8 & 8 & 5 \\
 subq\_\$0&8 & 8 & 8 & 8 & 5 \\
-subq_leaq_movq&1 & 1 & 2 & 2 & 1 \\
+subq\_leaq\_movq&1 & 1 & 2 & 2 & 1 \\
 subq\_movl\_movl&3 & 3 & 3 & 3 & 1 \\
 \bottomrule%第三道横线
 \end{tabular}
 \end{table}
 
 我们直接使用问题二构建的Gini决策树进行版本预测，最终得到的预测结果如\autoref{fig:tree_pre}所示：
-\begin{figure}
+\begin{figure}[H]
     \centering
-    \includegraphics[width=1\linewidth]{figures/tree_pre.png}
-    \caption{问题二模型预测结果}
+    \includegraphics[width=0.75\linewidth]{figures/tree_pre.png}
+    \caption{问题二判别函数预测结果}
     \label{fig:tree_pre}
 \end{figure}
 在这张图中，标签 0, 1, 2, 3, 4 分别对应的是 GCC 编译器版本 8.4.0、10.2.0、11.3.0、12.2.0 和 13.2.0。从图像中我们可以清楚地看到，对于真实标签为 1, 2, 3 的汇编文件，模型全部预测正确，说明模型在这些版本之间的区分能力较好。然而，对于真实标签为 0 和 4 的汇编文件，模型却将它们全部错误地预测为标签 3 的汇编文件。这种明显的误分类现象表明，模型在区分这些特定版本时存在严重问题。
