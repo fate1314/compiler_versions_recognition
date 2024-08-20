@@ -1,26 +1,27 @@
+\renewcommand{\arraystretch}{1.5}
 \section{符号说明}
 \begin{table}[H]
-\caption{\textbf{Example 1}}%标题
+\caption{\textbf{符号说明}}%标题
 \centering%把表居中
-\begin{tabular}{ll}%三列，内容全部居中
+\begin{tabular}{cc}%三列，内容全部居中
 \toprule%第一道横线
  符号 &说明\\ 
 \midrule%第二道横线 
  D & 给定样本集合 \\
 $p_i$ & 样本集中属于第i类的样本比例 \\
   C& 类的数量 \\
-  $|D_left|$ & 划分后数据集$D_left$中样本的数量 \\
-   $|D_right|$ & 划分后数据集$D_right$中样本的数量 \\
+  $|D_{left}|$ & 划分后数据集$D_left$中样本的数量 \\
+   $|D_{right}|$ & 划分后数据集$D_right$中样本的数量 \\
     $|D|$ & 数据集$D$中总样本的数量 \\
-    $D_not-missing&$属性A有值的样本集\\
-    $D_missing$属性A有缺失值的样本集\\
+    $D_{not-missing}$&属性A有值的样本集\\
+    $D_{missing}$&属性A有缺失值的样本集\\
      $Gini(D)$ & 数据集D的基尼指数 \\
-     $Gini(D,A,t_i)$数据集D经特征A的划分点划分后的基尼指数
-     $T$&叶子节点个数
-     $q(x)$样本x在书中的叶子节点的索引
-     $\omega$叶子节点的权重
-     $\gamma$控制叶子节点个数的惩罚权重
-     $\lambda$控制叶子节点的惩罚权重
+     $Gini(D,A,t_i)$&数据集D经特征A的划分点划分后的基尼指数\\
+     $T$&叶子节点个数\\
+     $q(x)$&样本x在书中的叶子节点的索引\\
+     $\omega$&叶子节点的权重\\
+     $\gamma$&控制叶子节点个数的惩罚权重\\
+     $\lambda$&控制叶子节点的惩罚权重\\
 \bottomrule%第三道横线
 \end{tabular}
-\end{table}
+\end{table}  
